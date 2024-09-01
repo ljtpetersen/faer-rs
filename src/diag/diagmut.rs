@@ -33,6 +33,16 @@ impl<'a, E: Entity> DiagMut<'a, E> {
     }
 }
 
+impl<E: Conjugate> DiagMut<'_, E>
+where
+    E::Canonical: ComplexField,
+{
+    /// Returns the inverse of this diagonal matrix.
+    pub fn inverse(self) -> Diag<E::Canonical> {
+        self.as_ref().inverse()
+    }
+}
+
 impl<'short, E: Entity> Reborrow<'short> for DiagMut<'_, E> {
     type Target = DiagRef<'short, E>;
 

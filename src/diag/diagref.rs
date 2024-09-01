@@ -1,5 +1,5 @@
 use super::*;
-use crate::col::ColRef;
+use crate::{col::ColRef, unzipped, zipped};
 
 /// Diagonal matrix view.
 #[derive(Debug)]
@@ -18,6 +18,16 @@ impl<'a, E: Entity> DiagRef<'a, E> {
     #[inline]
     pub fn as_ref(&self) -> DiagRef<'_, E> {
         *self
+    }
+}
+
+impl<'a, E: Conjugate> DiagRef<'a, E> 
+where
+    E::Canonical: ComplexField,
+{
+    /// Returns the inverse of this diagonal matrix.
+    pub fn inverse(self) -> Diag<E::Canonical> {
+        Diag { inner: zipped!(self.inner).map(|unzipped!(value)| value.read().canonicalize().faer_inv()) }
     }
 }
 

@@ -42,3 +42,13 @@ impl<E: Entity> Diag<E> {
         }
     }
 }
+
+impl<E: Conjugate> Diag<E>
+where
+    E::Canonical: ComplexField,
+{
+    /// Returns the inverse of this diagonal matrix.
+    pub fn inverse(&self) -> Diag<E::Canonical> {
+        self.as_ref().inverse()
+    }
+}
