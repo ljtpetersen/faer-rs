@@ -893,6 +893,76 @@ where
     }
 }
 
+impl<E: ComplexField, LhsE: Conjugate<Canonical = E>, RhsE: Conjugate<Canonical = E>>
+    Add<DiagRef<'_, RhsE>> for MatRef<'_, LhsE>
+{
+    type Output = Mat<E>;
+
+    #[track_caller]
+    fn add(self, rhs: DiagRef<'_, RhsE>) -> Self::Output {
+        let mut result = self.to_owned();
+        result.diagonal_mut().add_assign(rhs);
+        result
+    }
+}
+
+impl<E: ComplexField, LhsE: Conjugate<Canonical = E>, RhsE: Conjugate<Canonical = E>>
+    Sub<DiagRef<'_, RhsE>> for MatRef<'_, LhsE>
+{
+    type Output = Mat<E>;
+
+    #[track_caller]
+    fn sub(self, rhs: DiagRef<'_, RhsE>) -> Self::Output {
+        let mut result = self.to_owned();
+        result.diagonal_mut().sub_assign(rhs);
+        result
+    }
+}
+
+impl<LhsE: ComplexField, RhsE: Conjugate<Canonical = LhsE>>
+    AddAssign<DiagRef<'_, RhsE>> for MatMut<'_, LhsE>
+{
+    #[track_caller]
+    fn add_assign(&mut self, rhs: DiagRef<'_, RhsE>) {
+        self.as_mut().diagonal_mut().add_assign(rhs);
+    }
+}
+
+impl<LhsE: ComplexField, RhsE: Conjugate<Canonical = LhsE>>
+    SubAssign<DiagRef<'_, RhsE>> for MatMut<'_, LhsE>
+{
+    #[track_caller]
+    fn sub_assign(&mut self, rhs: DiagRef<'_, RhsE>) {
+        self.as_mut().diagonal_mut().sub_assign(rhs);
+    }
+}
+
+impl<E: ComplexField, LhsE: Conjugate<Canonical = E>, RhsE: Conjugate<Canonical = E>>
+    Add<MatRef<'_, RhsE>> for DiagRef<'_, LhsE>
+{
+    type Output = Mat<E>;
+
+    #[track_caller]
+    fn add(self, rhs: MatRef<'_, RhsE>) -> Self::Output {
+        let mut result = rhs.to_owned();
+        result.diagonal_mut().add_assign(self);
+        result
+    }
+}
+
+impl<E: ComplexField, LhsE: Conjugate<Canonical = E>, RhsE: Conjugate<Canonical = E>>
+    Sub<MatRef<'_, RhsE>> for DiagRef<'_, LhsE>
+{
+    type Output = Mat<E>;
+
+    #[track_caller]
+    fn sub(self, rhs: MatRef<'_, RhsE>) -> Self::Output {
+        let mut result = rhs.to_owned();
+        result.diagonal_mut().sub_assign(self);
+        result
+    }
+}
+
 // impl_add_sub!(MatRef<'_, LhsE>, MatRef<'_, RhsE>, Mat<E>);
 impl_add_sub!(MatRef<'_, LhsE>, MatMut<'_, RhsE>, Mat<E>);
 impl_add_sub!(MatRef<'_, LhsE>, Mat<RhsE>, Mat<E>);
@@ -1132,6 +1202,98 @@ impl_neg!(Diag<E>, Diag<E::Canonical>);
 impl_neg!(&DiagRef<'_, E>, Diag<E::Canonical>);
 impl_neg!(&DiagMut<'_, E>, Diag<E::Canonical>);
 impl_neg!(&Diag<E>, Diag<E::Canonical>);
+
+// impl_add_sub!(MatRef<'_, LhsE>, DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(MatRef<'_, LhsE>, DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(MatRef<'_, LhsE>, Diag<RhsE>, Mat<E>);
+impl_add_sub!(MatRef<'_, LhsE>, &DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(MatRef<'_, LhsE>, &DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(MatRef<'_, LhsE>, &Diag<RhsE>, Mat<E>);
+impl_add_sub!(&MatRef<'_, LhsE>, DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&MatRef<'_, LhsE>, DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&MatRef<'_, LhsE>, Diag<RhsE>, Mat<E>);
+impl_add_sub!(&MatRef<'_, LhsE>, &DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&MatRef<'_, LhsE>, &DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&MatRef<'_, LhsE>, &Diag<RhsE>, Mat<E>);
+
+impl_add_sub!(MatMut<'_, LhsE>, DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(MatMut<'_, LhsE>, DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(MatMut<'_, LhsE>, Diag<RhsE>, Mat<E>);
+impl_add_sub!(MatMut<'_, LhsE>, &DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(MatMut<'_, LhsE>, &DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(MatMut<'_, LhsE>, &Diag<RhsE>, Mat<E>);
+impl_add_sub!(&MatMut<'_, LhsE>, DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&MatMut<'_, LhsE>, DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&MatMut<'_, LhsE>, Diag<RhsE>, Mat<E>);
+impl_add_sub!(&MatMut<'_, LhsE>, &DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&MatMut<'_, LhsE>, &DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&MatMut<'_, LhsE>, &Diag<RhsE>, Mat<E>);
+
+impl_add_sub!(Mat<LhsE>, DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(Mat<LhsE>, DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(Mat<LhsE>, Diag<RhsE>, Mat<E>);
+impl_add_sub!(Mat<LhsE>, &DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(Mat<LhsE>, &DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(Mat<LhsE>, &Diag<RhsE>, Mat<E>);
+impl_add_sub!(&Mat<LhsE>, DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&Mat<LhsE>, DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&Mat<LhsE>, Diag<RhsE>, Mat<E>);
+impl_add_sub!(&Mat<LhsE>, &DiagRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&Mat<LhsE>, &DiagMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&Mat<LhsE>, &Diag<RhsE>, Mat<E>);
+
+// impl_add_sub_assign!(MatMut<'_, LhsE>, DiagRef<'_, RhsE>);
+impl_add_sub_assign!(MatMut<'_, LhsE>, DiagMut<'_, RhsE>);
+impl_add_sub_assign!(MatMut<'_, LhsE>, Diag<RhsE>);
+impl_add_sub_assign!(MatMut<'_, LhsE>, &DiagRef<'_, RhsE>);
+impl_add_sub_assign!(MatMut<'_, LhsE>, &DiagMut<'_, RhsE>);
+impl_add_sub_assign!(MatMut<'_, LhsE>, &Diag<RhsE>);
+
+impl_add_sub_assign!(Mat<LhsE>, DiagRef<'_, RhsE>);
+impl_add_sub_assign!(Mat<LhsE>, DiagMut<'_, RhsE>);
+impl_add_sub_assign!(Mat<LhsE>, Diag<RhsE>);
+impl_add_sub_assign!(Mat<LhsE>, &DiagRef<'_, RhsE>);
+impl_add_sub_assign!(Mat<LhsE>, &DiagMut<'_, RhsE>);
+impl_add_sub_assign!(Mat<LhsE>, &Diag<RhsE>);
+
+// impl_add_sub!(DiagRef<'_, LhsE>, MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(DiagRef<'_, LhsE>, MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(DiagRef<'_, LhsE>, Mat<RhsE>, Mat<E>);
+impl_add_sub!(DiagRef<'_, LhsE>, &MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(DiagRef<'_, LhsE>, &MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(DiagRef<'_, LhsE>, &Mat<RhsE>, Mat<E>);
+impl_add_sub!(&DiagRef<'_, LhsE>, MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&DiagRef<'_, LhsE>, MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&DiagRef<'_, LhsE>, Mat<RhsE>, Mat<E>);
+impl_add_sub!(&DiagRef<'_, LhsE>, &MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&DiagRef<'_, LhsE>, &MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&DiagRef<'_, LhsE>, &Mat<RhsE>, Mat<E>);
+
+impl_add_sub!(DiagMut<'_, LhsE>, MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(DiagMut<'_, LhsE>, MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(DiagMut<'_, LhsE>, Mat<RhsE>, Mat<E>);
+impl_add_sub!(DiagMut<'_, LhsE>, &MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(DiagMut<'_, LhsE>, &MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(DiagMut<'_, LhsE>, &Mat<RhsE>, Mat<E>);
+impl_add_sub!(&DiagMut<'_, LhsE>, MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&DiagMut<'_, LhsE>, MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&DiagMut<'_, LhsE>, Mat<RhsE>, Mat<E>);
+impl_add_sub!(&DiagMut<'_, LhsE>, &MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&DiagMut<'_, LhsE>, &MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&DiagMut<'_, LhsE>, &Mat<RhsE>, Mat<E>);
+
+impl_add_sub!(Diag<LhsE>, MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(Diag<LhsE>, MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(Diag<LhsE>, Mat<RhsE>, Mat<E>);
+impl_add_sub!(Diag<LhsE>, &MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(Diag<LhsE>, &MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(Diag<LhsE>, &Mat<RhsE>, Mat<E>);
+impl_add_sub!(&Diag<LhsE>, MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&Diag<LhsE>, MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&Diag<LhsE>, Mat<RhsE>, Mat<E>);
+impl_add_sub!(&Diag<LhsE>, &MatRef<'_, RhsE>, Mat<E>);
+impl_add_sub!(&Diag<LhsE>, &MatMut<'_, RhsE>, Mat<E>);
+impl_add_sub!(&Diag<LhsE>, &Mat<RhsE>, Mat<E>);
 
 impl<E: ComplexField, LhsE: Conjugate<Canonical = E>, RhsE: Conjugate<Canonical = E>>
     Mul<Scale<RhsE>> for Scale<LhsE>
